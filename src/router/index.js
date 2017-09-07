@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Hello from '@/components/Hello'
+import LandingPage from '@/components/LandingPage'
 import Navigator from '@/components/Navigator'
 import QueryBuilder from '@/components/QueryBuilder'
 
@@ -10,8 +10,8 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'Hello',
-      component: Hello
+      name: 'Home',
+      component: LandingPage
     },
     {
       path: '/navigator',

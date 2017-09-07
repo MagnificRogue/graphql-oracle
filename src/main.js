@@ -6,7 +6,7 @@ import router from './router'
 import VueApollo from 'vue-apollo'
 import Vuex from 'vuex'
 
-//Configure Vue
+// Configure Vue
 Vue.config.productionTip = false
 Vue.use(VueApollo)
 Vue.use(Vuex)
@@ -14,10 +14,10 @@ Vue.use(Vuex)
 // Create a store to hold the target graphql schema
 const store = new Vuex.Store({
   state: {
-    graphlSchema: ''
+    graphqlSchema: 'STORE BASE VALUE'
   },
   mutations: {
-    setSchema(state, newSchema) {
+    setSchema (state, newSchema) {
       state.graphqlSchema = newSchema
     }
   }
@@ -27,6 +27,7 @@ const store = new Vuex.Store({
 new Vue({
   el: '#app',
   router,
+  store,
   template: '<App/>',
   components: { App }
 })
