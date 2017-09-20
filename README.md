@@ -1,6 +1,10 @@
 # graphql-oracle
 
 > Use a Graph Structure to Build GraphQL Queries
+<p align="center">
+  <img src="src/assets/GraphqlOracleIcon.png"/>
+</p>
+
 
 ## Build Setup
 
