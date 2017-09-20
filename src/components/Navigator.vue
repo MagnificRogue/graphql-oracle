@@ -1,5 +1,5 @@
 <template>
-  <div class="navigator">
+  <div class='navigator'>
     <h1> Navigator Page </h1>
     <div id='navigatorGraph'></div>
   </div>
@@ -13,7 +13,8 @@ export default {
   data () {
     return {
       nodes: [],
-      edges: []
+      edges: [],
+      network: undefined
     }
   },
 
@@ -34,7 +35,8 @@ export default {
         this.nodes.push({
           id: type.name,
           label: type.name,
-          data: type
+          data: type,
+          group: 'objects'
         })
       })
 
@@ -59,6 +61,20 @@ export default {
               break
 
             case 'SCALAR':
+            /*
+              let node = {
+                id: type.id + ' ' + field.name + ' ' + field.type.name,
+                label: field.name + ': ' + field.type.name,
+                data: field,
+                group: 'scalars'
+              }
+              this.nodes.push(node)
+              this.edges.push({
+                from: type.id,
+                to: node.id,
+                arrows: 'to'
+              }) */
+
               break
               // If the field is actually a 1-N relationship
             case 'LIST':
@@ -79,25 +95,68 @@ export default {
           }
         })
       })
+    },
+    clickNode (event) {
+      window.network = this.network
     }
   },
   mounted () {
     this.buildGraph()
 
     let container = document.getElementById('navigatorGraph')
-    var data = {
+    let data = {
       nodes: new vis.DataSet(this.nodes),
       edges: new vis.DataSet(this.edges)
     }
-    var options = {}
-    let network = new vis.Network(container, data, options)
-    console.log(network)
-    console.log(data)
+
+    let options = {
+      edges: {
+        smooth: {
+          'forceDirection': 'none',
+          'roundness': 0.85
+        }
+      },
+      groups: {
+        'scalars': {
+          color: {
+            background: 'yellow'
+          }
+        },
+
+        'objects': {
+        }
+      },
+      layout: {
+        improvedLayout: false
+      },
+      'physics': {
+        'stabilization': {
+          enabled: true
+        },
+        'barnesHut': {
+          'gravitationalConstant': -3600,
+          'centralGravity': 1.75,
+          'springConstant': 0.095,
+          'damping': 1,
+          'avoidOverlap': 1
+        },
+        'maxVelocity': 9,
+        'minVelocity': 0.99,
+        'timestep': 0.52
+      },
+      interaction: {
+        tooltipDelay: 200,
+        hideEdgesOnDrag: true
+      }
+    }
+
+    // eslint-disable-next-line no-unused-vars
+    this.network = new vis.Network(container, data, options)
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
+<!-- Add 'scoped' attribute to limit CSS to this component only -->
 <style scoped>
   #navigatorGraph {
     width: 100%;

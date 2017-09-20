@@ -14,7 +14,7 @@ Vue.use(Vuex)
 // Create a store to hold the target graphql schema
 const store = new Vuex.Store({
   state: {
-    graphqlSchema: 'STORE BASE VALUE'
+    graphqlSchema: require('../schema.json')
   },
   mutations: {
     setSchema (state, newSchema) {
