@@ -15,8 +15,10 @@
   },
   "dependencies": {
     "apollo-client": "^1.9.2",
+    "cytoscape": "^3.2.3",
+    "cytoscape-cola": "^2.0.0",
+    "cytoscape-dagre": "^2.1.0",
     "graphql-tag": "^2.4.2",
-    "vis": "^4.20.1",
     "vue": "^2.3.3",
     "vue-apollo": "^2.1.0-rc.4",
     "vue-router": "^2.6.0",

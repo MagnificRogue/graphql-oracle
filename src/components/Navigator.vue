@@ -6,14 +6,15 @@
 </template>
 
 <script>
-const vis = require('vis')
+const cytoscape = require('cytoscape')
+const cola = require('cytoscape-cola')
+cytoscape.use(cola)
 
 export default {
   name: 'navigator',
   data () {
     return {
-      nodes: [],
-      edges: []
+      nodes: {} // an associative array of type names to its properties and edges
     }
   },
 
@@ -24,75 +25,156 @@ export default {
     }
   },
   methods: {
-    buildGraph () {
+    buildNodesMap () {
       let discardedTypes = new Set(['__Schema', '__Type', '__TypeKind', '__Field', '__InputValue', '__EnumValue', '__Directive', '__DirectiveLocation'])
 
       this.schema.types.forEach((type) => {
         if (type.kind === 'SCALAR' || discardedTypes.has(type.name)) {
           return
         }
-        this.nodes.push({
+        let typeNode = {
           id: type.name,
           label: type.name,
           data: type
-        })
-      })
-
-      // for each type we added
-      this.nodes.forEach((type) => {
-        let fields = type.data.fields
-        // if it doesn't have any fields, then continue on
-        if (!fields) {
-          return
         }
 
-        // If it DOEs have fields, for each field
-        fields.forEach((field) => {
-          switch (field.type.kind) {
-            // If the field is an object, we have a relationship of parent has one child
-            case 'OBJECT':
-              this.edges.push({
-                from: type.id,
-                to: field.type.name,
-                arrows: 'to'
+        this.nodes[typeNode.id] = typeNode
+      })
+    },
+    // We assume that the parent node is already on the graph
+    graphHasNode (graph, nodeId) {
+      return graph.nodes('#' + nodeId).length !== 0
+    },
+    expandGraph (graph, parentNode) {
+      let fields = parentNode.data.fields
+      if (!fields) {
+        return
+      }
+      fields.forEach((field) => {
+        switch (field.type.kind) {
+          case 'OBJECT':
+            if (!this.graphHasNode(graph, field.type.name)) {
+              graph.add({
+                group: 'nodes',
+                data: this.nodes[field.type.name]
               })
-              break
+            }
 
-            case 'SCALAR':
-              break
-              // If the field is actually a 1-N relationship
-            case 'LIST':
-              let fieldType = field.type.ofType.kind
-              if (fieldType === 'SCALAR') {
-                return
+            graph.add({
+              group: 'edges',
+              data: {
+                source: parentNode.id,
+                target: field.type.name,
+                label: field.name
               }
+            })
+            break
 
-              this.edges.push({
-                from: type.id,
-                to: field.type.ofType.name,
-                arrows: 'to'
-              })
+          case 'SCALAR':
+            let node = graph.add({
+              group: 'nodes',
+              data: {
+                label: field.name + ':' + field.type.name
+              }
+            })
 
-              break
-            default:
-              return
-          }
-        })
+            graph.add({
+              group: 'edges',
+              data: {
+                label: field.name,
+                source: parentNode.id,
+                target: node.id()
+              }
+            })
+            break
+
+          case 'LIST':
+            let fieldType = field.type.ofType.name
+            let fieldKind = field.type.ofType.kind
+            switch (fieldKind) {
+              case 'OBJECT':
+                if (!this.graphHasNode(graph, fieldType)) {
+                  graph.add({
+                    group: 'nodes',
+                    data: this.nodes[fieldType]
+                  })
+                }
+
+                graph.add({
+                  group: 'edges',
+                  data: {
+                    source: parentNode.id,
+                    target: fieldType,
+                    label: field.name
+                  }
+                })
+                break
+
+              case 'SCALAR':
+                break
+
+              default:
+                console.log('Failed to add list of ' + fieldKind + ' to ' + parentNode.id)
+                break
+            }
+            break
+
+          default:
+            console.log('Failed to field to ' + parentNode.id)
+            console.log(field)
+        }
       })
     }
   },
   mounted () {
-    this.buildGraph()
-
     let container = document.getElementById('navigatorGraph')
-    var data = {
-      nodes: new vis.DataSet(this.nodes),
-      edges: new vis.DataSet(this.edges)
+    let graph = cytoscape({
+      container: container,
+//      hideEdgesOnViewport: true,
+      // Style information about the graph
+      style: [
+        {
+          selector: 'node', // all nodes in the graph
+          css: {
+            'content': 'data(label)',
+            'background-color': 'yellow',
+            'border-width': '1px',
+            'border-color': 'grey',
+            'color': 'white'
+          }
+        },
+        {
+          selector: 'edge',
+          css: {
+            'content': 'data(label)',
+            'color': '#d3d3d3'
+          }
+        }
+      ]
+    })
+
+    this.buildNodesMap()
+    graph.add({
+      group: 'nodes',
+      data: this.nodes['Query']
+    })
+    this.expandGraph(graph, this.nodes['Query'])
+
+    graph.on('click', 'node', (evt) => {
+      this.expandGraph(graph, this.nodes[evt.target.id()])
+      graph.layout(layout).run()
+    })
+
+    let layout = {
+      name: 'cola',
+      animate: true,
+      infinite: true,
+      fit: false,
+      edgeLength: 200,
+      nodeSpacing: (node) => { return 50 }
     }
-    var options = {}
-    let network = new vis.Network(container, data, options)
-    console.log(network)
-    console.log(data)
+
+    graph.layout(layout).run()
   }
 }
 </script>
