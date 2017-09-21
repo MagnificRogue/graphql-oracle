@@ -13,6 +13,12 @@
         <img :src="querybuilderImageUrl">
       </router-link>
     </div>
+    <div>
+      <router-link to="DataNavigator">
+        <h2> Data Navigator </h2>
+        <img :src="dataNavigatorUrl">
+      </router-link>
+    </div>
   </div>
 </template>
 
@@ -29,6 +35,9 @@ export default {
     },
     querybuilderImageUrl: function () {
       return require('../assets/GraphQLLogo.svg')
+    },
+    dataNavigatorUrl: function () {
+      return require('../assets/DataNavigator.png')
     }
   }
 }

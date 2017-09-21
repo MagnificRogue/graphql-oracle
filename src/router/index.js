@@ -3,7 +3,7 @@ import Router from 'vue-router'
 import LandingPage from '@/components/LandingPage'
 import Navigator from '@/components/Navigator'
 import QueryBuilder from '@/components/QueryBuilder'
-
+import DataNavigator from '@/components/DataNavigator'
 Vue.use(Router)
 
 export default new Router({
@@ -22,6 +22,11 @@ export default new Router({
       path: '/queryBuilder',
       name: 'QueryBuilder',
       component: QueryBuilder
+    },
+    {
+      path: '/dataNavigator',
+      name: 'DataNavigator',
+      component: DataNavigator
     }
   ]
 })
