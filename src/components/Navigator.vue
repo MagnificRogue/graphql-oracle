@@ -35,7 +35,8 @@ export default {
         let typeNode = {
           id: type.name,
           label: type.name,
-          data: type
+          data: type,
+          expanded: false
         }
 
         this.nodes[typeNode.id] = typeNode
@@ -45,7 +46,8 @@ export default {
     graphHasNode (graph, nodeId) {
       return graph.nodes('#' + nodeId).length !== 0
     },
-    expandGraph (graph, parentNode) {
+
+    expandGraph (graph, parentNode, renderedPosition) {
       let fields = parentNode.data.fields
       if (!fields) {
         return
@@ -56,7 +58,8 @@ export default {
             if (!this.graphHasNode(graph, field.type.name)) {
               graph.add({
                 group: 'nodes',
-                data: this.nodes[field.type.name]
+                data: this.nodes[field.type.name],
+                renderedPosition: renderedPosition
               })
             }
 
@@ -75,7 +78,8 @@ export default {
               group: 'nodes',
               data: {
                 label: field.name + ':' + field.type.name
-              }
+              },
+              renderedPosition: renderedPosition
             })
 
             graph.add({
@@ -96,7 +100,8 @@ export default {
                 if (!this.graphHasNode(graph, fieldType)) {
                   graph.add({
                     group: 'nodes',
-                    data: this.nodes[fieldType]
+                    data: this.nodes[fieldType],
+                    renderedPosition: renderedPosition
                   })
                 }
 
@@ -161,8 +166,13 @@ export default {
     this.expandGraph(graph, this.nodes['Query'])
 
     graph.on('click', 'node', (evt) => {
-      this.expandGraph(graph, this.nodes[evt.target.id()])
-      graph.layout(layout).run()
+      console.log(evt)
+      let node = this.nodes[evt.target.id()]
+      if (!node.expanded) {
+        node.expanded = true
+        this.expandGraph(graph, this.nodes[evt.target.id()], evt.renderedPosition)
+        graph.layout(layout).run()
+      }
     })
 
     let layout = {
