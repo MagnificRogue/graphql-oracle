@@ -152,7 +152,8 @@ export default {
           selector: 'edge',
           css: {
             'content': 'data(label)',
-            'color': '#d3d3d3'
+            'color': '#d3d3d3',
+            'curve-style': 'bezier'
           }
         }
       ]
