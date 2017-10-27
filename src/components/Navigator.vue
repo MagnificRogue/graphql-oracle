@@ -152,8 +152,13 @@ export default {
           selector: 'edge',
           css: {
             'content': 'data(label)',
-            'color': '#d3d3d3',
-            'curve-style': 'bezier'
+            'color': '#0F0F0F',
+            'curve-style': 'bezier',
+            'text-background-opacity': 1,
+            'text-border-color': '#000000',
+            'text-border-width': 1,
+            'text-border-opacity': 1,
+            'text-background-color': '#ddd'
           }
         }
       ]
